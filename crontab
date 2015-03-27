@@ -1,0 +1,6 @@
+# weltklang
+*/1 * * * * /home/radio/weltklang/bin/rfk-collectstats
+@daily      /home/radio/weltklang/bin/rfk-userstats
+@weekly     /home/radio/weltklang/bin/rfk-geoipdbupdate
+@reboot     /home/radio/local/bin/start_radio.sh
+
