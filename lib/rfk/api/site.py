@@ -35,12 +35,12 @@ def parse_datetimestring(datestring):
 def listenerdata(start, stop):
     from rfk.site import app
 
-    app.logger.warn(start)
-    app.logger.warn(stop)
+    #app.logger.warn(start)
+    #app.logger.warn(stop)
     stop = parse_datetimestring(stop)
     start = parse_datetimestring(start)
-    app.logger.warn(start)
-    app.logger.warn(stop)
+    #app.logger.warn(start)
+    #app.logger.warn(stop)
     ret = {'data': {}, 'shows': []}
 
     streams = Stream.query.all()
