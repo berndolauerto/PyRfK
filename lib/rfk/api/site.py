@@ -304,7 +304,7 @@ def now_playing():
         ret['listener'] = {}
         for listener in listeners:
             ret['listener'][listener.listener] = {'listener': listener.listener,
-                                                  'county': listener.country,
+                                                  'country': listener.country,
                                                   'countryball': iso_country_to_countryball(listener.country)}
         return jsonify({'success': True, 'data': ret})
     except Exception as e:
