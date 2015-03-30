@@ -1,8 +1,9 @@
 set('log.file.path','$logfile')
 set('log.file', true)
 set('log.stdout', true)
+set('log.level', $loglevel)
 set('server.telnet', true)
-set('harbor.bind_addr','$address')
+set('harbor.bind_addr', '$address')
 
 def crossfade(a, b)
     add(normalize=false,
@@ -73,15 +74,16 @@ harbor.http.register(port=$port, method="GET",
                      get_listener)
 
 playlist = request.dynamic(get_playlist_item)
-playlist = mksafe(playlist)
 playlist = merge_tracks(playlist)
 playlist = drop_metadata(playlist)
 playlist = rewrite_metadata([("title", "Kein Strömbernd")], playlist)
 playlist = rewrite_metadata([("artist", "Radio freies Krautchan")], playlist)
+
+$fallback
 
 live = map_metadata(append_userid, live)
 live = on_metadata(writemeta , live)
 
 $lastFM
 
-full = fallback(track_sensitive=false, transitions=[crossfade], [live, playlist])
+full = fallback(track_sensitive=false, transitions=[crossfade], [live, playlist, fallback])

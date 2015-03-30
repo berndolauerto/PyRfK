@@ -124,10 +124,12 @@ def gen_script():
 
     interface = os.path.join(get_path('bin'), 'rfk-liquidsoaphandler')
     logfile = os.path.join(get_path(rfk.CONFIG.get('liquidsoap', 'logpath')))
+    loglevel = rfk.CONFIG.get('liquidsoap', 'loglevel')
     address = rfk.CONFIG.get('liquidsoap', 'address')
     port = rfk.CONFIG.get('liquidsoap', 'port')
 
     lastfm = make_lastfm()
+    fallback = make_fallback()
 
     template_string = open(_get_template_path('main.liq'), 'r').read()
 
@@ -135,6 +137,8 @@ def gen_script():
     config = template.substitute(address=address,
                                  port=port,
                                  logfile=logfile,
+                                 loglevel=loglevel,
+                                 fallback=fallback,
                                  lastFM=lastfm,
                                  script=interface)
     if isinstance(config, str):
@@ -146,7 +150,7 @@ def gen_script():
 
 
 def make_lastfm():
-    script = ''
+    script = u''
 
     enabled = rfk.CONFIG.getboolean('liquidsoap', 'lastfm')
     username = rfk.CONFIG.get('liquidsoap', 'lastfmuser')
@@ -159,6 +163,15 @@ def make_lastfm():
                                       password=password)
 
     return script
+
+
+def make_fallback():
+    if rfk.CONFIG.has_option('liquidsoap', 'fallback'):
+        fallback_filename = rfk.CONFIG.get('liquidsoap', 'fallback')
+        fallback = os.path.join(get_path(rfk.CONFIG.get('liquidsoap', 'looppath')), fallback_filename)
+        if os.path.isfile(fallback):
+            return u'fallback = single("%s")'.format(fallback)
+    return u'fallback = blank()'
 
 
 def make_output(dir):
