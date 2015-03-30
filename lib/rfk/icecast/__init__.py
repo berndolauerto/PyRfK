@@ -226,6 +226,16 @@ class IcecastConfig(object):
         mnt.appendChild(mount_name)
         #mnt.appendChild(username)
         #mnt.appendChild(password)
+        if mount.fallback:
+            fallback_mount = doc.createElement('fallback-mount')
+            fallback_mount.appendChild(doc.createTextNode('/fallback_{}'.format(mount.mount[1:])))
+            mnt.appendChild(fallback_mount)
+            fallback_override = doc.createElement('fallback-override')
+            fallback_override.appendChild(doc.createTextNode('1'))
+            mnt.appendChild(fallback_override)
+            fallback_full = doc.createElement('fallback-when-full')
+            fallback_full.appendChild(doc.createTextNode('1'))
+            mnt.appendChild(fallback_full)
         if mount.hidden:
             mount_hidden = doc.createElement('hidden')
             mount_hidden.appendChild(doc.createTextNode('1'))
@@ -274,6 +284,7 @@ class Mount(object):
         self.mount = ''
 
         self.hidden = True
+        self.fallback = True
 
         self.username = 'hackme'
         self.password = 'hackme'
