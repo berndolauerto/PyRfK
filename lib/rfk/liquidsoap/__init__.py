@@ -150,7 +150,7 @@ def gen_script():
 
 
 def make_lastfm():
-    script = u''
+    script = ''
 
     enabled = rfk.CONFIG.getboolean('liquidsoap', 'lastfm')
     username = rfk.CONFIG.get('liquidsoap', 'lastfmuser')
@@ -170,8 +170,8 @@ def make_fallback():
         fallback_filename = rfk.CONFIG.get('liquidsoap', 'fallback')
         fallback = os.path.join(get_path(rfk.CONFIG.get('liquidsoap', 'looppath')), fallback_filename)
         if os.path.isfile(fallback):
-            return u'fallback = single("{}")'.format(fallback)
-    return u'fallback = blank()'
+            return 'emergency = single("{}")'.format(fallback)
+    return 'emergency = blank()'
 
 
 def make_output(dir):

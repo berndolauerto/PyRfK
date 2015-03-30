@@ -86,4 +86,4 @@ live = on_metadata(writemeta , live)
 
 $lastFM
 
-full = fallback(track_sensitive=false, transitions=[crossfade], [live, playlist, fallback])
+full = fallback(track_sensitive=false, transitions=[crossfade], [live, playlist, emergency])
