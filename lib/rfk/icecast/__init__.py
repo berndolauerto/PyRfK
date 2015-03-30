@@ -228,7 +228,7 @@ class IcecastConfig(object):
         #mnt.appendChild(password)
         if mount.fallback:
             fallback_mount = doc.createElement('fallback-mount')
-            fallback_mount.appendChild(doc.createTextNode('fallback_{}'.format(mount.mount)))
+            fallback_mount.appendChild(doc.createTextNode('/fallback_{}'.format(mount.mount[1:])))
             mnt.appendChild(fallback_mount)
             fallback_override = doc.createElement('fallback-override')
             fallback_override.appendChild(doc.createTextNode('1'))
