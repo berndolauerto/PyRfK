@@ -129,7 +129,7 @@ def gen_script():
     port = rfk.CONFIG.get('liquidsoap', 'port')
 
     lastfm = make_lastfm()
-    fallback = make_fallback()
+    emergency = make_emergency()
 
     template_string = open(_get_template_path('main.liq'), 'r').read()
 
@@ -138,7 +138,7 @@ def gen_script():
                                  port=port,
                                  logfile=logfile,
                                  loglevel=loglevel,
-                                 fallback=fallback,
+                                 emergency=emergency,
                                  lastFM=lastfm,
                                  script=interface)
     if isinstance(config, str):
@@ -165,7 +165,7 @@ def make_lastfm():
     return script
 
 
-def make_fallback():
+def make_emergency():
     if rfk.CONFIG.has_option('liquidsoap', 'fallback'):
         fallback_filename = rfk.CONFIG.get('liquidsoap', 'fallback')
         fallback = os.path.join(get_path(rfk.CONFIG.get('liquidsoap', 'looppath')), fallback_filename)
