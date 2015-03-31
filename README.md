@@ -3,6 +3,21 @@ PyRfK
 Radio freies Krautchan MK IV  
 by *TeddyDesTodes* and *buckket*
 
+*** NOTE ***
+------------
+
+THIS IS A FORK.
+
+It is maintained by the current administration of radio.krautchan.net.
+
+Original PyRfK can be found https://github.com/krautradio/PyRfK
+
+Our tree at https://github.com/krautradio/PyRfK contains our changes
+proposed to upstream.
+
+This branch at https://github.com/krautradio/PyRfK/tree/krautradio contains
+also our site-specific changes.
+
 Requirements:
 -------------
 * Python >= 2.7
