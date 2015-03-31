@@ -128,6 +128,9 @@ def gen_script():
     address = rfk.CONFIG.get('liquidsoap', 'address')
     port = rfk.CONFIG.get('liquidsoap', 'port')
 
+    backendurl = rfk.CONFIG.get('liquidsoap', 'backendurl')
+    backendpassword = rfk.CONFIG.get('liquidsoap', 'backendpassword')
+
     lastfm = make_lastfm()
     emergency = make_emergency()
 
@@ -138,6 +141,8 @@ def gen_script():
                                  port=port,
                                  logfile=logfile,
                                  loglevel=loglevel,
+                                 backendurl=backendurl,
+                                 backendpassword=backendpassword,
                                  emergency=emergency,
                                  lastFM=lastfm,
                                  script=interface)
