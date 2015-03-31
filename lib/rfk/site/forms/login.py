@@ -18,7 +18,7 @@ class RegisterForm(Form):
                                           validators.Length(min=5, message='Password too short.'),
                                           validators.EqualTo('password_retype', message='Passwords must match.')])
     password_retype = PasswordField('Password (verification)', [validators.Required()])
-    email = TextField('E-Mail', [validators.Optional(), validators.Email()])
+    email = TextField('E-Mail (optional)', [validators.Optional(), validators.Email()])
 
 
 def register_form(rform):
