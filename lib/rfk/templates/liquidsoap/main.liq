@@ -1,8 +1,14 @@
 set('log.file.path','$logfile')
 set('log.file', true)
 set('log.stdout', true)
+set('log.level', $loglevel)
 set('server.telnet', true)
-set('harbor.bind_addr','$address')
+set('harbor.bind_addr', '$address')
+
+# Header for HTTP requests, including the secret access token.
+header = [("Content-Type", "application/json"), ("key", "$backendpassword")]
+# Base URL for HTTP requests. Make sure it includes a trailing slash.
+baseurl = "$backendurl"
 
 def crossfade(a, b)
     add(normalize=false,
@@ -12,44 +18,42 @@ def crossfade(a, b)
 end
 
 def auth(login, password) =
-    ret = get_process_lines("$script auth #{quote(login)} #{quote(password)}")
-    ret = list.hd(ret)
-    bool_of_string(ret)
+    payload = json_of(compact=true, [("username", login), ("password", password)])
+    ret = http.post(data=payload, headers=header, "#{baseurl}auth")
+    bool_of_string(snd(ret))
 end
 
 userid = ref "none"
 
 def append_userid(mdata) =
-  [("userid", !userid)]
+    [("userid", !userid)]
 end
 
 def live_start(mdata)
-    ret = get_process_lines("$script connect #{quote(json_of(compact=true, mdata))}")
-    ignore(userid := list.hd(ret))
+    ret = http.post(data=json_of(compact=true, mdata), headers=header, "#{baseurl}connect")
+    ignore(userid := snd(ret))
 end
 
 def live_stop()
-    ignore(test_process("$script disconnect #{quote(json_of(compact=true, !userid))}"))
+    ignore(http.post(data=json_of(compact=true, !userid), headers=header, "#{baseurl}disconnect"))
     ignore(userid := "none")
 end
 
 def writemeta(mdata)
-    ignore(system("$script meta #{quote(json_of(compact=true, mdata))}"))
+    ignore(http.post(data=json_of(compact=true, mdata), headers=header, "#{baseurl}metadata"))
 end
 
-def get_playlist_item() = 
-  result =
-    list.hd(
-      get_process_lines("$script playlist"))
-  request.create(result)
+def get_playlist_item() =
+    ret = http.get(headers=header, "#{baseurl}playlist")
+    request.create(snd(ret))
 end
 
 def get_listener(~protocol, ~data, ~headers,uri) =
-   http_response(
-     protocol=protocol,
-     code=200,
-     data=get_process_output("$script listenercount")
-   )
+    http_response(
+        protocol=protocol,
+        code=200,
+        data=snd(http.get(headers=header, "#{baseurl}listenercount"))
+    )
 end
 
 
@@ -73,15 +77,21 @@ harbor.http.register(port=$port, method="GET",
                      get_listener)
 
 playlist = request.dynamic(get_playlist_item)
-playlist = mksafe(playlist)
 playlist = merge_tracks(playlist)
 playlist = drop_metadata(playlist)
-playlist = rewrite_metadata([("title", "Kein Strömbernd")], playlist)
-playlist = rewrite_metadata([("artist", "Radio freies Krautchan")], playlist)
+playlist = rewrite_metadata([("title", "Nobody is streaming right now")], playlist)
+playlist = rewrite_metadata([("artist", "radiochan")], playlist)
+
+$emergency
+emergency = mksafe(emergency)
+emergency = merge_tracks(emergency)
+emergency = drop_metadata(emergency)
+emergency = rewrite_metadata([("title", "Something is wrong, please contact an admin!")], emergency)
+emergency = rewrite_metadata([("artist", "radiochan")], emergency)
 
 live = map_metadata(append_userid, live)
 live = on_metadata(writemeta , live)
 
 $lastFM
 
-full = fallback(track_sensitive=false, transitions=[crossfade], [live, playlist])
+full = fallback(track_sensitive=false, transitions=[crossfade, crossfade, crossfade], [live, playlist, emergency])
