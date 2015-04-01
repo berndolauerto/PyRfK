@@ -1,22 +1,18 @@
-PyRfK
-=====
-Radio freies Krautchan MK IV  
-by *TeddyDesTodes* and *buckket*
+rfk4tgp
+=======
+
+a fork of "Radio freies Krautchan MK IV"
+by *TeddyDesTodes*, *buckket* and others
 
 *** NOTE ***
 ------------
 
-THIS IS A FORK.
+THIS IS A FORK of PyRfK MK IV.
 
 It is maintained by the current administration of radio.krautchan.net.
 
-Original PyRfK can be found https://github.com/krautradio/PyRfK
-
-Our tree at https://github.com/krautradio/PyRfK contains our changes
-proposed to upstream.
-
-This branch at https://github.com/krautradio/PyRfK/tree/krautradio contains
-also our site-specific changes.
+Original PyRfK can be found at https://github.com/krautradio/PyRfK
+We also track and incorporate changes from https://github.com/buckket/weltklang/
 
 Requirements:
 -------------
