@@ -301,6 +301,7 @@ def liquidsoap_meta_data():
         track = Track.new_track(show, artist, title)
 
     session.commit()
+    return 'kthxbye'
 
 
 @backend.route('/liquidsoap/playlist')
@@ -447,5 +448,6 @@ def liquidsoap_disconnect():
         if track:
             track.end_track()
         session.commit()
+        return 'kthxbye'
     else:
         return 'no user found'
