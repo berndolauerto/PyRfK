@@ -79,15 +79,15 @@ harbor.http.register(port=$port, method="GET",
 playlist = request.dynamic(get_playlist_item)
 playlist = merge_tracks(playlist)
 playlist = drop_metadata(playlist)
-playlist = rewrite_metadata([("title", "Nobody is streaming right now")], playlist)
-playlist = rewrite_metadata([("artist", "radiochan")], playlist)
+playlist = rewrite_metadata([("title", "Kein Strömbernd")], playlist)
+playlist = rewrite_metadata([("artist", "Radio freies Krautchan")], playlist)
 
 $emergency
 emergency = mksafe(emergency)
 emergency = merge_tracks(emergency)
 emergency = drop_metadata(emergency)
 emergency = rewrite_metadata([("title", "Something is wrong, please contact an admin!")], emergency)
-emergency = rewrite_metadata([("artist", "radiochan")], emergency)
+emergency = rewrite_metadata([("artist", "Radio freies Krautchan")], emergency)
 
 live = map_metadata(append_userid, live)
 live = on_metadata(writemeta , live)
