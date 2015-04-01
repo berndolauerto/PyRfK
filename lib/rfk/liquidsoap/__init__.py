@@ -124,10 +124,15 @@ def gen_script():
 
     interface = os.path.join(get_path('bin'), 'rfk-liquidsoaphandler')
     logfile = os.path.join(get_path(rfk.CONFIG.get('liquidsoap', 'logpath')))
+    loglevel = rfk.CONFIG.get('liquidsoap', 'loglevel')
     address = rfk.CONFIG.get('liquidsoap', 'address')
     port = rfk.CONFIG.get('liquidsoap', 'port')
 
+    backendurl = rfk.CONFIG.get('liquidsoap', 'backendurl')
+    backendpassword = rfk.CONFIG.get('liquidsoap', 'backendpassword')
+
     lastfm = make_lastfm()
+    emergency = make_emergency()
 
     template_string = open(_get_template_path('main.liq'), 'r').read()
 
@@ -135,6 +140,10 @@ def gen_script():
     config = template.substitute(address=address,
                                  port=port,
                                  logfile=logfile,
+                                 loglevel=loglevel,
+                                 backendurl=backendurl,
+                                 backendpassword=backendpassword,
+                                 emergency=emergency,
                                  lastFM=lastfm,
                                  script=interface)
     if isinstance(config, str):
@@ -159,6 +168,15 @@ def make_lastfm():
                                       password=password)
 
     return script
+
+
+def make_emergency():
+    if rfk.CONFIG.has_option('liquidsoap', 'fallback'):
+        fallback_filename = rfk.CONFIG.get('liquidsoap', 'fallback')
+        fallback = os.path.join(get_path(rfk.CONFIG.get('liquidsoap', 'looppath')), fallback_filename)
+        if os.path.isfile(fallback):
+            return 'emergency = single("{}")'.format(fallback)
+    return 'emergency = blank()'
 
 
 def make_output(dir):
