@@ -26,6 +26,7 @@ backend = Blueprint('backend', __name__)
 logger = init_db_logging('backend')
 
 # Maybe make this an configurable option?
+# TODO: Make this an configurable option!
 username_delimiter = '|'
 
 
@@ -171,6 +172,14 @@ def icecast_add_listener():
 
 
 def liquidsoap_decorator(f=None):
+    """Decorator for auth and error handling
+
+    This decorator will check the header of incoming requests for the
+    backend password in the 'key' field, which is specified in the config file.
+    It will also wrap every request in a try/except block to perform a rollback
+    in case there was an error with the request to keep the database safe.
+    """
+
     if f is None:
         return partial(liquidsoap_decorator)
 
@@ -182,6 +191,7 @@ def liquidsoap_decorator(f=None):
 
         key = request.headers.get('key')
         if key != rfk.CONFIG.get('liquidsoap', 'backendpassword'):
+            # TODO: return appropriate status code
             return "false"
 
         try:
@@ -202,9 +212,12 @@ def liquidsoap_decorator(f=None):
 def kick():
     """Shorthand method for kicking the currently connected user
 
-    Returns True if someone was kicked
+    Returns True if someone was kicked successfully
     Returns False if harbor was empty or the kick failed
     """
+
+    # TODO: kick() should also create a time ban, otherwise the kicked client can reconnect immediately.
+    # NOTE: Maybe we can create a global helper for this, as this may be helpful elsewhere.
 
     logger.info('kick: trying to kick source')
     liquidsoap = LiquidInterface()
@@ -262,7 +275,7 @@ def liquidsoap_meta_data():
     """Handles track changes
 
     Returns error message if something suspicious happens
-    Returns nothing when everything worked like expected
+    Returns 'true' when everything worked like expected
     """
 
     data = request.get_json()
@@ -271,7 +284,7 @@ def liquidsoap_meta_data():
         session.commit()
         return 'no userid'
     user = User.get_user(id=data['userid'])
-    if user == None:
+    if user is None:
         session.commit()
         return 'user not found'
 
@@ -301,13 +314,13 @@ def liquidsoap_meta_data():
         track = Track.new_track(show, artist, title)
 
     session.commit()
-    return 'kthxbye'
+    return 'true'
 
 
 @backend.route('/liquidsoap/playlist')
 @liquidsoap_decorator()
 def liquidsoap_playlist():
-    """Returns the path to the current loop that should be played
+    """Returns the path to the current loop file that should be played
 
     """
 
@@ -335,7 +348,7 @@ def liquidsoap_auth():
     if the user to be authenticated has a show registered.
     If that happens this function will print false to the
     user since we need a grace period to actually disconnect
-    the other user. (Which means that the user has to reconnect.)
+    the other user. Which means that the user has to reconnect!
 
     Keyword arguments:
         - username
@@ -416,9 +429,9 @@ def liquidsoap_connect():
         return str(user.user)
     except (rexc.base.UserNotFoundException, rexc.base.InvalidPasswordException, KeyError):
         logger.info('liquidsoap_connect: rejected connect, initiate kick...')
-        session.commit()
         kick()
-        return "none"
+        session.commit()
+        return 'none'
 
 
 @backend.route('/liquidsoap/disconnect', methods=['POST'])
@@ -433,7 +446,7 @@ def liquidsoap_disconnect():
     logger.info('liquidsoap_disconnect: diconnect for userid %s' % (userid,))
     if userid == 'none' or userid == '':
         logger.warn('liquidsoap_disconnect: no userid supplied!')
-        rfk.database.session.commit()
+        session.commit()
         return 'Whooops no userid?'
     user = User.get_user(id=int(userid))
     if user:
@@ -448,6 +461,6 @@ def liquidsoap_disconnect():
         if track:
             track.end_track()
         session.commit()
-        return 'kthxbye'
+        return 'true'
     else:
         return 'no user found'
