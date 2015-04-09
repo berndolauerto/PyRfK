@@ -139,6 +139,9 @@ app.register_blueprint(backend.backend, url_prefix='/backend')
 from . import donation
 app.register_blueprint(donation.donation, url_prefix='/donations')
 
+from . import icesource
+app.register_blueprint(icesource.icesource, url_prefix='/icesource')
+
 
 def after_this_request(f):
     if not hasattr(g, 'after_request_callbacks'):

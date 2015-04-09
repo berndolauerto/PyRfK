@@ -23,6 +23,8 @@ import base64
 import redis
 import redis.exceptions
 
+import shelve
+
 import os
 basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(basedir, 'lib'))
@@ -169,11 +171,15 @@ def doAuth(username, password):
 def doMetaData(data):
     publish_track = False
     logger.debug('doMetaData: %s' % (json.dumps(data),))
-    if 'userid' not in data or data['userid'] == 'none':
-        print 'no userid'
-        rfk.database.session.commit()
-        return
-    user = User.get_user(id=data['userid'])
+    #if 'userid' not in data or data['userid'] == 'none':
+    #    print 'no userid'
+    #    rfk.database.session.commit()
+    #    return
+    #user = User.get_user(id=data['userid'])
+    persist = shelve.open('/tmp/icesource.shelve')
+    user = User.get_user(username=persist['sourceuser'])
+    persist.close()
+    
     if user == None:
         print 'user not found'
         rfk.database.session.commit()
