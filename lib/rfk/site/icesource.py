@@ -31,8 +31,10 @@ from rfk.log import init_db_logging
 icesource = Blueprint('icesource', __name__)
 logger = init_db_logging('icesource')
 
-# TODO: This sucks
+# Maybe make this an configurable option?
+# TODO: Make this an configurable option!
 username_delimiter = '|'
+
 icecast_url = 'http://radio.krautchan.net:8000'
 icecast_admin_pw = 'XXXXXXXX'
 input_mount = '/live.ogg'
@@ -44,7 +46,7 @@ def kick():
 
     r = http.get('%s/admin/stats' % icecast_url,
         auth = ('admin', icecast_admin_pw))
-
+        
     if r.status_code == 200:
         doc = parseString(r.text)
         if len(xpath.find('//source[@mount="%s"]' % input_mount, doc)) > 0:
@@ -60,13 +62,14 @@ def kick():
     return False
 
 
+
 def get_source_name_and_description():
     # Get the name and description of the current
     # source stream
 
     stream_name = ''
     stream_description = ''
-
+        
     r = http.get('%s/admin/stats' % icecast_url,
         auth = ('admin', icecast_admin_pw))
 
@@ -94,6 +97,43 @@ def get_source_name_and_description():
             pass
 
     return (stream_name, stream_description)
+
+
+def get_track_artist_and_title():
+    # Get the name and description of the current
+    # source track
+
+    track_artist = ''
+    track_title = ''
+        
+    r = http.get('%s/admin/stats' % icecast_url,
+        auth = ('admin', icecast_admin_pw))
+
+    if r.status_code == 200:
+        doc = parseString(r.text)
+        base_xpath = '//source[@mount="%s"]' % input_mount
+
+        try:
+            track_artist = xpath.find(
+                '%s/artist/text()' % base_xpath,
+                doc
+            )[0].nodeValue
+
+        except IndexError:
+            pass
+
+
+        try:
+            track_title = xpath.find(
+                '%s/title/text()' % base_xpath,
+                doc
+            )[0].nodeValue
+
+        except IndexError:
+            pass
+
+    return (track_artist, track_title)
+
 
 
 def init_show(user):
@@ -137,6 +177,7 @@ def init_show(user):
     return show
 
 
+
 @icesource.route('/auth', methods=['POST'])
 def auth():
 
@@ -166,12 +207,12 @@ def auth():
         logger.info('icesource_auth: accepted auth for %s' % username)
         session.commit()
         return make_response('ok', 200, {'icecast-auth-user': '1'})
-
+        
     except rexc.base.InvalidPasswordException:
         logger.info('icesource_auth: rejected auth for %s (invalid password)' % username)
         session.commit()
         abort(401)
-
+        
     except rexc.base.UserNotFoundException:
         logger.info('icesource_auth: rejected auth for %s (invalid user)' % username)
         session.commit()
@@ -191,7 +232,7 @@ def add():
             user.set_setting(showname, code='icy_show_name')
         if showdesc != '':
             user.set_setting(showdesc, code='icy_show_description')
-
+    
     show = init_show(user)
     persist['sourceuser'] = persist['authuser']
     persist.close()
@@ -218,5 +259,34 @@ def remove():
         persist['sourceuser'] = ''
         session.commit()
     persist.close()
-
+    
     return make_response('ok', 200, {'icecast-auth-user': '1'})
+
+
+@icesource.route('/updatemeta')
+def updatemeta():
+    # This is (for now) actually called by liquidsoap
+    # as we don't yet have the metadata hook in icecast
+    # Therefore we get the data through another call to
+    # the icecast admin interface for now
+
+    (artist, title) = get_track_artist_and_title()
+
+    logger.debug('icesource_updatemeta: %s - %s' % (artist, title))
+
+    persist = shelve.open('/tmp/icesource.shelve')
+    user = User.get_user(username=persist['sourceuser'])
+    if user is None:
+        session.commit()
+        return 'user not found'
+
+    show = init_show(user)
+    if artist=='' and title=='':
+        track = Track.current_track()
+        if track:
+            track.end_track()
+    else:
+        track = Track.new_track(show, artist, title)
+
+    session.commit()
+    return 'true'
