@@ -46,7 +46,7 @@ def kick():
 
     r = http.get('%s/admin/stats' % icecast_url,
         auth = ('admin', icecast_admin_pw))
-        
+
     if r.status_code == 200:
         doc = parseString(r.text)
         if len(xpath.find('//source[@mount="%s"]' % input_mount, doc)) > 0:
@@ -69,7 +69,7 @@ def get_source_name_and_description():
 
     stream_name = ''
     stream_description = ''
-        
+
     r = http.get('%s/admin/stats' % icecast_url,
         auth = ('admin', icecast_admin_pw))
 
@@ -207,12 +207,12 @@ def auth():
         logger.info('icesource_auth: accepted auth for %s' % username)
         session.commit()
         return make_response('ok', 200, {'icecast-auth-user': '1'})
-        
+
     except rexc.base.InvalidPasswordException:
         logger.info('icesource_auth: rejected auth for %s (invalid password)' % username)
         session.commit()
         abort(401)
-        
+
     except rexc.base.UserNotFoundException:
         logger.info('icesource_auth: rejected auth for %s (invalid user)' % username)
         session.commit()
@@ -232,7 +232,7 @@ def add():
             user.set_setting(showname, code='icy_show_name')
         if showdesc != '':
             user.set_setting(showdesc, code='icy_show_description')
-    
+
     show = init_show(user)
     persist['sourceuser'] = persist['authuser']
     persist.close()
@@ -259,7 +259,7 @@ def remove():
         persist['sourceuser'] = ''
         session.commit()
     persist.close()
-    
+
     return make_response('ok', 200, {'icecast-auth-user': '1'})
 
 
