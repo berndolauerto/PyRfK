@@ -9,7 +9,7 @@ by *TeddyDesTodes*, *buckket* and others
 
 THIS IS A FORK of PyRfK MK IV.
 
-It is maintained by the current administration of radio.krautchan.net.
+It is maintained by the current administration of radio.kohlchan.net.
 
 Original PyRfK can be found at https://github.com/krautradio/PyRfK
 We also track and incorporate changes from https://github.com/buckket/weltklang/
